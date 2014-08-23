@@ -1,12 +1,60 @@
 <html>
     <head>
         <title>Cave Invaders</title>
+        <style>
+        .wrapper {
+            position: relative;
+            width: 400px;
+            height: 300px;
+        }
+
+        .wrapper canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        </style>
     </head>
     <body>
-        <canvas id="cave" width="640" height="480">Please update to a browser that supports canvas.</canvas>
+        <div class="wrapper">
+            <canvas id="game" width="640" height="480">Please update to a browser that supports canvas.</canvas>
+            <canvas id="darkness" width="640" height="480">Please update to a browser that supports canvas.</canvas>
+        </div>
+        <script>         
+        //Standard Circular Light
+        Light = function(ctx, radius, position)
+        {
+            var newLight = {
+             draw: function(){
+                var gradient = ctx.createRadialGradient(radius*2, radius*2, radius, radius*2, radius*2,  0);  
+                gradient.addColorStop(1, "#000");  
+                gradient.addColorStop(0, "transparent");  
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, position.x, position.y);  
+             }   
+            }
+            
+            return newLight;
+        }
+            
+            
+        var gameCtx = document.getElementById('game').getContext("2d");
+        gameCtx.fillStyle = "red"; 
+        gameCtx.fillRect(0,0,640,480); 
+        var darknessCtx = document.getElementById('darkness').getContext("2d");
+        //Fill the darkness out
+        darknessCtx.fillStyle = "black"; 
+        darknessCtx.fillRect(0,0,640,480); 
+        darknessCtx.globalCompositeOperation = 'destination-out'; 
         
-        <script>
+        //Test light
+        var position = {x:320, y:240};
+        var light = Light(darknessCtx, 50, position);
         
+        light.draw();
+
+
+
         </script>
     </body>
 </html>
