@@ -39,6 +39,10 @@ gameCtx.fillText("Hello World!",10,50);
 
 
 //Game functions
+function update()
+{
+    
+}
 function draw()
 {
     //Fill the darkness out
@@ -48,7 +52,28 @@ function draw()
     darknessCtx.globalCompositeOperation = 'destination-out'; 
     light.draw();
 }
-draw();
+
+//Main Loop
+var mainloop = function() {
+    update();
+    draw();
+};
+
+var animFrame = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame    ||
+        window.oRequestAnimationFrame      ||
+        window.msRequestAnimationFrame     ||
+        null ;
+
+var recursiveAnim = function() {
+    mainloop();
+    animFrame( recursiveAnim );
+};
+
+// start the mainloop
+animFrame( recursiveAnim );
+
 
 //Utility Functions
 function getMousePos(canvas, evt) {
@@ -58,9 +83,9 @@ function getMousePos(canvas, evt) {
         y: evt.clientY - rect.top
     };
 }
+
 //Listeners 
 darknessCanvas.addEventListener('mousemove', function(evt) {
     var mousePos = getMousePos(darknessCanvas, evt);
     light.place(mousePos.x,mousePos.y);
-    draw();
 }, false);
