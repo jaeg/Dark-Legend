@@ -32,7 +32,8 @@ Array.prototype.contains = function(obj) {
 }
 
 //Canvas
-var gameCtx = document.getElementById('game').getContext("2d");
+var gameCanvas = document.getElementById('game');
+var gameCtx = gameCanvas.getContext("2d");
 var darknessCanvas = document.getElementById('darkness');
 var darknessCtx = darknessCanvas.getContext("2d");
 
@@ -54,7 +55,10 @@ var mapArray = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0]
 ]
 
-
+gameCanvas.width = mapArray[0].length*tileSize;
+gameCanvas.height = mapArray.length*tileSize;
+darknessCanvas.width = gameCanvas.width;
+darknessCanvas.height = gameCanvas.height;
 
 var unPassibleTiles = [3];
 
@@ -140,7 +144,7 @@ function draw()
     //Fill the darkness out
     darknessCtx.globalCompositeOperation = 'source-over'; 
     darknessCtx.fillStyle = "black"; 
-    darknessCtx.fillRect(0,0,640,480); 
+    darknessCtx.fillRect(0,0,darknessCanvas.width,darknessCanvas.height); 
     darknessCtx.globalCompositeOperation = 'destination-out'; 
     light.draw();
     
