@@ -38,9 +38,9 @@ var darknessCtx = darknessCanvas.getContext("2d");
 
 //SPRITES
 var tilesImage = new Image();
-tilesImage.src = "img/tiles.gif";
+tilesImage.src = "img/tiles.png";
 var charactersImage = new Image();
-charactersImage.src = "img/characters.gif";
+charactersImage.src = "img/characters.png";
 
 //MAPS
 tileSize = 32;
