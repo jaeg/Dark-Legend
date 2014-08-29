@@ -46,13 +46,13 @@ charactersImage.src = "img/characters.png";
 //MAPS
 tileSize = 32;
 var mapArray = [
-    [0,0,3,3,3,0,0,0,0,0,0,0,0],
-    [0,0,0,3,1,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,1,0,0,0,0],
-    [0,0,1,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,1,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0]
+    [3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,0,0,3,1,0,0,0,0,0,0,0,3],
+    [3,0,0,0,0,0,3,0,1,0,0,3,3],
+    [3,0,1,0,0,0,3,0,0,0,3,0,3],
+    [3,0,0,0,0,0,0,0,3,3,0,0,3],
+    [3,0,0,0,0,0,1,0,3,3,0,0,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3]
 ]
 
 gameCanvas.width = mapArray[0].length*tileSize;
@@ -66,50 +66,73 @@ var unPassibleTiles = [3];
 function Player() {                
     var that = {
     isMoving: false,
-    tilePosition: {x:0,y:0},
-    globalPosition: {x:0, y:0},
+    position: {x:tileSize, y:tileSize},
     frame: 0,
     update: function() {
-        if (that.globalPosition.x < that.tilePosition.x * tileSize) {
-            that.globalPosition.x++;
-            that.isMoving = true;
-        }
-        else if (that.globalPosition.x > that.tilePosition.x * tileSize) {
-            that.globalPosition.x--;
-            that.isMoving = true;
-        }
-        else if (that.globalPosition.y < that.tilePosition.y * tileSize) {
-            that.globalPosition.y++;
-            that.isMoving = true;
-        }
-        else if (that.globalPosition.y > that.tilePosition.y * tileSize) {
-            that.globalPosition.y--;
-            that.isMoving = true;
-        }
-        else
-        {
-            that.isMoving = false;
-        }
+
     },
     render: function(){
-        gameCtx.drawImage(charactersImage,0,0,16,16,that.globalPosition.x,that.globalPosition.y,tileSize,tileSize);
+        gameCtx.drawImage(charactersImage,0,0,16,16,that.position.x,that.position.y,tileSize,tileSize);
     },
-    move: function(tileX, tileY){
-        //Check if tile is moveable
-        if (that.tilePosition.x + tileX >= 0 && that.tilePosition.x + tileX < mapArray[0].length && that.tilePosition.y + tileY >= 0 && that.tilePosition.y + tileY < mapArray.length  && !unPassibleTiles.contains(mapArray[that.tilePosition.y + tileY][that.tilePosition.x+tileX]))
+    move: function(xSpeed, ySpeed){
+        that.position.x += xSpeed;
+        that.position.y += ySpeed;
+        
+        var tileX = Math.floor(that.position.x / tileSize);
+        var tileY = Math.floor(that.position.y / tileSize);
+        var xOverlap = that.position.x%tileSize;
+        var yOverlap = that.position.y%tileSize;
+        //unPassibleTiles.contains(mapArray[tileY][tileX])
+
+
+        
+        if (xSpeed > 0)  //Moving Right
         {
-            that.tilePosition.x += tileX;
-            that.tilePosition.y += tileY;
+                if((unPassibleTiles.contains(mapArray[tileY][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY+1][tileX]) && xOverlap))
+                {
+                    that.position.x=tileX*tileSize;
+                }
         }
+        
+        if (xSpeed < 0) //Moving Left
+        {
+                if((!unPassibleTiles.contains(mapArray[tileY][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY+1][tileX]) && xOverlap))
+                {
+                    that.position.x=(tileX+1)*tileSize;
+                }
+        }
+        
+        
+        var tileX = Math.floor(that.position.x / tileSize);
+        var tileY = Math.floor(that.position.y / tileSize);
+        var xOverlap = that.position.x%tileSize;
+        var yOverlap = that.position.y%tileSize;
+        if (ySpeed > 0) // Moving Down
+        {
+                if((unPassibleTiles.contains(mapArray[tileY+1][tileX]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX+1]) && yOverlap))
+                {
+                    that.position.y=tileY*tileSize;
+                }
+        }
+        
+        if (ySpeed < 0) //Moving Up
+        {
+                if((!unPassibleTiles.contains(mapArray[tileY+1][tileX]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX+1]) && yOverlap))
+                {
+                    that.position.y=(tileY+1)*tileSize;
+                }
+        }
+        
+            
     },
     handleKey: function(e){
        if (that.isMoving == false) {
         switch(String.fromCharCode(e.keyCode))
         {
-            case 'w': that.move(0,-1); break;
-            case 'a': that.move(-1,0);break;
-            case 's': that.move(0,1);break;
-            case 'd': that.move(1,0);break;
+            case 'w': that.move(0,-5); break;
+            case 'a': that.move(-5,0);break;
+            case 's': that.move(0,5);break;
+            case 'd': that.move(5,0);break;
         }
        }
     },
@@ -137,14 +160,14 @@ gameCtx.fillText("Hello World!",10,50);
 function update()
 {
     player.update();
-    light.place(player.globalPosition.x+tileSize/2,player.globalPosition.y+tileSize/2);
+    light.place(player.position.x+tileSize/2,player.position.y+tileSize/2);
 }
 function draw()
 {
     //Fill the darkness out
     darknessCtx.globalCompositeOperation = 'source-over'; 
     darknessCtx.fillStyle = "black"; 
-    darknessCtx.fillRect(0,0,darknessCanvas.width,darknessCanvas.height); 
+    //darknessCtx.fillRect(0,0,darknessCanvas.width,darknessCanvas.height); 
     darknessCtx.globalCompositeOperation = 'destination-out'; 
     light.draw();
     
