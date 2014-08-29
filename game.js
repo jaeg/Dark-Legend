@@ -90,7 +90,7 @@ function Player() {
         {
                 if((unPassibleTiles.contains(mapArray[tileY][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY+1][tileX]) && xOverlap))
                 {
-                    that.position.x=tileX*tileSize;
+                    that.position.x -= xSpeed;
                 }
         }
         
@@ -98,7 +98,7 @@ function Player() {
         {
                 if((!unPassibleTiles.contains(mapArray[tileY][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY+1][tileX]) && xOverlap))
                 {
-                    that.position.x=(tileX+1)*tileSize;
+                    that.position.x  -= xSpeed;
                 }
         }
         
@@ -111,7 +111,7 @@ function Player() {
         {
                 if((unPassibleTiles.contains(mapArray[tileY+1][tileX]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX+1]) && yOverlap))
                 {
-                    that.position.y=tileY*tileSize;
+                    that.position.y -= ySpeed;
                 }
         }
         
@@ -119,20 +119,21 @@ function Player() {
         {
                 if((!unPassibleTiles.contains(mapArray[tileY+1][tileX]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX+1]) && yOverlap))
                 {
-                    that.position.y=(tileY+1)*tileSize;
+                    that.position.y -= ySpeed;
                 }
         }
         
             
     },
     handleKey: function(e){
+       var moveSpeed = Math.ceil(tileSize/5);
        if (that.isMoving == false) {
         switch(String.fromCharCode(e.keyCode))
         {
-            case 'w': that.move(0,-5); break;
-            case 'a': that.move(-5,0);break;
-            case 's': that.move(0,5);break;
-            case 'd': that.move(5,0);break;
+            case 'w': that.move(0,-moveSpeed); break;
+            case 'a': that.move(-moveSpeed,0);break;
+            case 's': that.move(0,moveSpeed);break;
+            case 'd': that.move(moveSpeed,0);break;
         }
        }
     },
