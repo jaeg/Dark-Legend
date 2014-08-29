@@ -88,17 +88,17 @@ function Player() {
         
         if (xSpeed > 0)  //Moving Right
         {
-                if((unPassibleTiles.contains(mapArray[tileY][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY+1][tileX]) && xOverlap))
+                if((unPassibleTiles.contains(mapArray[tileY][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY+1][tileX]) && yOverlap))
                 {
-                    that.position.x -= xSpeed;
+                    that.position.x=tileX*tileSize;
                 }
         }
         
         if (xSpeed < 0) //Moving Left
         {
-                if((!unPassibleTiles.contains(mapArray[tileY][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY+1][tileX]) && xOverlap))
+                if((!unPassibleTiles.contains(mapArray[tileY][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY+1][tileX]) && yOverlap))
                 {
-                    that.position.x  -= xSpeed;
+                    that.position.x=(tileX+1)*tileSize;
                 }
         }
         
@@ -109,17 +109,17 @@ function Player() {
         var yOverlap = that.position.y%tileSize;
         if (ySpeed > 0) // Moving Down
         {
-                if((unPassibleTiles.contains(mapArray[tileY+1][tileX]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX+1]) && yOverlap))
+                if((unPassibleTiles.contains(mapArray[tileY+1][tileX]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX+1]) && xOverlap))
                 {
-                    that.position.y -= ySpeed;
+                    that.position.y=tileY*tileSize;
                 }
         }
         
         if (ySpeed < 0) //Moving Up
         {
-                if((!unPassibleTiles.contains(mapArray[tileY+1][tileX]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX+1]) && yOverlap))
+                if((!unPassibleTiles.contains(mapArray[tileY+1][tileX]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX+1]) && xOverlap))
                 {
-                    that.position.y -= ySpeed;
+                    that.position.y=(tileY+1)*tileSize;
                 }
         }
         
