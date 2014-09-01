@@ -1,3 +1,37 @@
+//GLOBALS
+//Canvas
+var gameCanvas = document.getElementById('game');
+var gameCtx = gameCanvas.getContext("2d");
+var darknessCanvas = document.getElementById('darkness');
+var darknessCtx = darknessCanvas.getContext("2d");
+
+//SPRITES
+var tilesImage = new Image();
+tilesImage.src = "img/tiles.png";
+var charactersImage = new Image();
+charactersImage.src = "img/characters.png";
+
+//MAPS
+tileSize = 32;
+var mapArray = [
+    [3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,0,0,3,1,0,0,0,0,0,0,0,3],
+    [3,0,0,0,0,0,3,0,1,0,0,3,3],
+    [3,0,1,0,0,0,3,0,0,0,3,0,3],
+    [3,0,0,0,0,0,0,0,3,3,0,0,3],
+    [3,0,0,0,0,0,1,0,3,3,0,0,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3]
+]
+
+gameCanvas.width = mapArray[0].length*tileSize;
+gameCanvas.height = mapArray.length*tileSize;
+darknessCanvas.width = gameCanvas.width;
+darknessCanvas.height = gameCanvas.height;
+
+var unPassibleTiles = [3];
+
+
+//CLASSES
 //Standard Circular Light
 function Light(ctx, radius, position)
 {
@@ -31,76 +65,43 @@ Array.prototype.contains = function(obj) {
     return false;
 }
 
-//Canvas
-var gameCanvas = document.getElementById('game');
-var gameCtx = gameCanvas.getContext("2d");
-var darknessCanvas = document.getElementById('darkness');
-var darknessCtx = darknessCanvas.getContext("2d");
-
-//SPRITES
-var tilesImage = new Image();
-tilesImage.src = "img/tiles.png";
-var charactersImage = new Image();
-charactersImage.src = "img/characters.png";
-
-//MAPS
-tileSize = 32;
-var mapArray = [
-    [3,3,3,3,3,3,3,3,3,3,3,3,3],
-    [3,0,0,3,1,0,0,0,0,0,0,0,3],
-    [3,0,0,0,0,0,3,0,1,0,0,3,3],
-    [3,0,1,0,0,0,3,0,0,0,3,0,3],
-    [3,0,0,0,0,0,0,0,3,3,0,0,3],
-    [3,0,0,0,0,0,1,0,3,3,0,0,3],
-    [3,3,3,3,3,3,3,3,3,3,3,3,3]
-]
-
-gameCanvas.width = mapArray[0].length*tileSize;
-gameCanvas.height = mapArray.length*tileSize;
-darknessCanvas.width = gameCanvas.width;
-darknessCanvas.height = gameCanvas.height;
-
-var unPassibleTiles = [3];
-
 //Player Entity
-function Player() {                
-    var that = {
-    isMoving: false,
-    position: {x:tileSize, y:tileSize},
-    frame: 0,
-    moveSpeed: Math.ceil(tileSize/5),
-    keys: {left:false,right:false,up:false,down:false},
-    update: function() {
-        if (that.keys.up == true)
-            that.move(0,-that.moveSpeed); 
-        if (that.keys.left == true) 
-            that.move(-that.moveSpeed,0);
-        if (that.keys.down == true) 
-            that.move(0,that.moveSpeed);
-        if (that.keys.right == true) 
-            that.move(that.moveSpeed,0);
+function Player() {
+    that = this;
+    this.isMoving = false;
+    this.position = {x:tileSize, y:tileSize};
+    this.frame = 0;
+    this.moveSpeed = Math.ceil(tileSize/5);
+    this.keys = {left:false,right:false,up:false,down:false};
+    this.update = function() {
+        if (this.keys.up == true)
+            this.move(0,-this.moveSpeed); 
+        if (this.keys.left == true) 
+            this.move(-this.moveSpeed,0);
+        if (this.keys.down == true) 
+            this.move(0,this.moveSpeed);
+        if (this.keys.right == true) 
+            this.move(this.moveSpeed,0);
 
-    },
-    render: function(){
-        gameCtx.drawImage(charactersImage,0,0,16,16,that.position.x,that.position.y,tileSize,tileSize);
-    },
-    move: function(xSpeed, ySpeed){
-        that.position.x += xSpeed;
-        that.position.y += ySpeed;
+    };
+    this.render = function(){
+        gameCtx.drawImage(charactersImage,0,0,16,16,this.position.x,this.position.y,tileSize,tileSize);
+    };
+    this.move = function(xSpeed, ySpeed){
+        this.position.x += xSpeed;
+        this.position.y += ySpeed;
         
-        var tileX = Math.floor(that.position.x / tileSize);
-        var tileY = Math.floor(that.position.y / tileSize);
-        var xOverlap = that.position.x%tileSize;
-        var yOverlap = that.position.y%tileSize;
+        var tileX = Math.floor(this.position.x / tileSize);
+        var tileY = Math.floor(this.position.y / tileSize);
+        var xOverlap = this.position.x%tileSize;
+        var yOverlap = this.position.y%tileSize;
         //unPassibleTiles.contains(mapArray[tileY][tileX])
 
-
-        
         if (xSpeed > 0)  //Moving Right
         {
                 if((unPassibleTiles.contains(mapArray[tileY][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY+1][tileX]) && yOverlap))
                 {
-                    that.position.x=tileX*tileSize;
+                    this.position.x=tileX*tileSize;
                 }
         }
         
@@ -108,20 +109,20 @@ function Player() {
         {
                 if((!unPassibleTiles.contains(mapArray[tileY][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY+1][tileX]) && yOverlap))
                 {
-                    that.position.x=(tileX+1)*tileSize;
+                    this.position.x=(tileX+1)*tileSize;
                 }
         }
         
         
-        var tileX = Math.floor(that.position.x / tileSize);
-        var tileY = Math.floor(that.position.y / tileSize);
-        var xOverlap = that.position.x%tileSize;
-        var yOverlap = that.position.y%tileSize;
+        var tileX = Math.floor(this.position.x / tileSize);
+        var tileY = Math.floor(this.position.y / tileSize);
+        var xOverlap = this.position.x%tileSize;
+        var yOverlap = this.position.y%tileSize;
         if (ySpeed > 0) // Moving Down
         {
                 if((unPassibleTiles.contains(mapArray[tileY+1][tileX]) && !unPassibleTiles.contains(mapArray[tileY][tileX])) || (unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && !unPassibleTiles.contains(mapArray[tileY][tileX+1]) && xOverlap))
                 {
-                    that.position.y=tileY*tileSize;
+                    this.position.y=tileY*tileSize;
                 }
         }
         
@@ -129,13 +130,13 @@ function Player() {
         {
                 if((!unPassibleTiles.contains(mapArray[tileY+1][tileX]) && unPassibleTiles.contains(mapArray[tileY][tileX])) || (!unPassibleTiles.contains(mapArray[tileY+1][tileX+1]) && unPassibleTiles.contains(mapArray[tileY][tileX+1]) && xOverlap))
                 {
-                    that.position.y=(tileY+1)*tileSize;
+                    this.position.y=(tileY+1)*tileSize;
                 }
         }
         
             
-    },
-    handleKeyPressed: function(e){        
+    };
+    this.handleKeyPressed = function(e){    
         switch(String.fromCharCode(e.keyCode))
         {
             case 'W': that.keys.up = true;break;
@@ -144,8 +145,8 @@ function Player() {
             case 'D': that.keys.right = true;break;
         }
        
-    },
-    handleKeyReleased: function(e){
+    };
+    this.handleKeyReleased = function(e){
         switch(String.fromCharCode(e.keyCode))
         {
             case 'W': that.keys.up = false; break;
@@ -153,25 +154,19 @@ function Player() {
             case 'S': that.keys.down = false;break;
             case 'D': that.keys.right = false;break;
         }
-    }
-    }
-    document.addEventListener("keydown",that.handleKeyPressed, false);
-    document.addEventListener("keyup",that.handleKeyReleased, false);
-    return that;
-
-
+    };
+    
+    document.addEventListener("keydown",this.handleKeyPressed, false);
+    document.addEventListener("keyup",this.handleKeyReleased, false);
 }
-var player = Player();
 
-//Test lights
+
+
+//Initialization
+var player = new Player();
 var position = {x:50, y:50};
 var light =  new Light(darknessCtx, 100, position);
 light.draw();
-
-//Test Text
-gameCtx.fillStyle="red";
-gameCtx.font="20px Georgia";
-gameCtx.fillText("Hello World!",10,50);
 
 
 //Game functions
