@@ -23,13 +23,15 @@ var mapArray = [
     [3,3,3,3,3,3,3,3,3,3,3,3,3]
 ]
 
-gameCanvas.width = mapArray[0].length*tileSize;
-gameCanvas.height = mapArray.length*tileSize;
+gameCanvas.width = 300;//mapArray[0].length*tileSize;
+gameCanvas.height = 300;//mapArray.length*tileSize;
 darknessCanvas.width = gameCanvas.width;
 darknessCanvas.height = gameCanvas.height;
 
 var unPassibleTiles = [3];
 
+
+var screenOffset = {x: 0, y: 0};
 
 //CLASSES
 //Standard Circular Light
@@ -39,8 +41,8 @@ function Light(ctx, radius, position)
      this.radius = radius;
      this.ctx = ctx;
      this.draw =  function(){
-        var gradient = this.ctx.createRadialGradient(this.position.x, this.position.y, 
-                                                     this.radius, this.position.x, this.position.y, 0);  
+        var gradient = this.ctx.createRadialGradient(this.position.x + screenOffset.x, this.position.y + screenOffset.y, 
+                                                     this.radius, this.position.x + screenOffset.x, this.position.y + screenOffset.y, 0);  
         gradient.addColorStop(1, "#000");  
          //gradient.addColorStop(0, "white");  
         gradient.addColorStop(0, "transparent");  
@@ -85,7 +87,7 @@ function Player() {
 
     };
     this.render = function(){
-        gameCtx.drawImage(charactersImage,0,0,16,16,this.position.x,this.position.y,tileSize,tileSize);
+        gameCtx.drawImage(charactersImage,0,0,16,16,this.position.x + screenOffset.x,this.position.y+screenOffset.y,tileSize,tileSize);
     };
     this.move = function(xSpeed, ySpeed){
         this.position.x += xSpeed;
@@ -113,7 +115,6 @@ function Player() {
                 }
         }
         
-        
         var tileX = Math.floor(this.position.x / tileSize);
         var tileY = Math.floor(this.position.y / tileSize);
         var xOverlap = this.position.x%tileSize;
@@ -132,9 +133,20 @@ function Player() {
                 {
                     this.position.y=(tileY+1)*tileSize;
                 }
-        }
+        }   
         
-            
+        
+        
+        //Screen move
+        if (this.position.x + screenOffset.x+tileSize > gameCanvas.width)
+            screenOffset.x -= tileSize;
+        if (this.position.x + screenOffset.x < 0)
+            screenOffset.x += tileSize;
+        if (this.position.y + screenOffset.y + tileSize > gameCanvas.height)
+            screenOffset.y -= tileSize;
+        if (this.position.y + screenOffset.y < 0)
+            screenOffset.y += tileSize;
+        
     };
     this.handleKeyPressed = function(e){    
         switch(String.fromCharCode(e.keyCode))
@@ -202,7 +214,7 @@ function draw()
                 offSetY = 0;
             }
 
-            gameCtx.drawImage(tilesImage,16*offSetX,16*offSetY,16,16,j*tileSize,i*tileSize,tileSize,tileSize);
+            gameCtx.drawImage(tilesImage,16*offSetX,16*offSetY,16,16,j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);
         }
     }
 
