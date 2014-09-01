@@ -88,7 +88,8 @@ function Player() {
     this.frame = 0;
     this.moveSpeed = Math.ceil(tileSize/5);
     this.keys = {left:false,right:false,up:false,down:false};
-    this.light = new Light(darknessCtx, 100, {x:0,y:0});
+    this.flashlight = new Light(darknessCtx, 100, {x:0,y:0});
+    this.flashlightActive = true;
     
     this.update = function() {
         if (this.keys.up == true)
@@ -100,11 +101,12 @@ function Player() {
         if (this.keys.right == true) 
             this.move(this.moveSpeed,0);
         
-        this.light.place(this.position.x+tileSize/2,this.position.y+tileSize/2);
+        this.flashlight.place(this.position.x+tileSize/2,this.position.y+tileSize/2);
     };
     this.draw = function(){
         gameCtx.drawImage(charactersImage,0,0,16,16,this.position.x + screenOffset.x,this.position.y+screenOffset.y,tileSize,tileSize);
-        this.light.draw();
+        if(this.flashlightActive)
+            this.flashlight.draw();
     };
     this.move = function(xSpeed, ySpeed){
         this.position.x += xSpeed;
@@ -170,6 +172,7 @@ function Player() {
             case 'A': that.keys.left = true;break;
             case 'S': that.keys.down = true;break;
             case 'D': that.keys.right = true;break;
+            case 'F': that.flashlightActive = !that.flashlightActive;break;
         }
        
     };
