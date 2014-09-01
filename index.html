@@ -2,19 +2,20 @@
     <head>
         <title>Dark Legend</title>
         <style>
-        .wrapper {
+        .gamediv {
             position: relative;
             width: 400px;
             height: 300px;
+            margin: 0 auto;
         }
 
-        .wrapper canvas {
+        .gamediv canvas {
             position: absolute;
             top: 0;
             left: 0;
         }
             
-        .wrapper #background {
+        .gamediv #background {
             position: absolute;
             top: 0;
             left: 0;
@@ -23,10 +24,25 @@
         </style>
     </head>
     <body>
-        <div class="wrapper">
+        <h3 align="center">Dark Legend</h3>
+        <div class="gamediv">
             <div id="background" width="640" height="480"></div>
             <canvas id="game" width="640" height="480">Please update to a browser that supports canvas.</canvas>
             <canvas id="darkness" width="640" height="480">Please update to a browser that supports canvas.</canvas>
+        </div>
+        <div>
+            <p>A portal to the dark realm has opened releasing a hoard of demons and plunges the world into enternal darkness.  Using your trusty flashlight and what ever weapons you can find you must fight back the hoard and kill the big brain!</p>
+            <strong>Controls</strong>
+            <ul>
+                <li>WASD - Movement</li>
+                <li>F - Flashlight</li>
+                <li>Space - Fire</li>
+                <li>1 - Pistol:  Your standard weapon</li>
+                <li>2 - Shotgun:  More powerful than pistol but shorter range</li>
+                <li>3 - Machine Gun:  Rapid fire</li>
+                <li>4 - Rocket Launcher:  Can destroy solid objects.</li>
+            </ul>
+            
         </div>
         <script src="game.js" lang="javascript">         
         </script>

@@ -68,7 +68,17 @@ function Player() {
     isMoving: false,
     position: {x:tileSize, y:tileSize},
     frame: 0,
+    moveSpeed: Math.ceil(tileSize/5),
+    keys: {left:false,right:false,up:false,down:false},
     update: function() {
+        if (that.keys.up == true)
+            that.move(0,-that.moveSpeed); 
+        if (that.keys.left == true) 
+            that.move(-that.moveSpeed,0);
+        if (that.keys.down == true) 
+            that.move(0,that.moveSpeed);
+        if (that.keys.right == true) 
+            that.move(that.moveSpeed,0);
 
     },
     render: function(){
@@ -125,21 +135,28 @@ function Player() {
         
             
     },
-    handleKey: function(e){
-       var moveSpeed = Math.ceil(tileSize/5);
-       if (that.isMoving == false) {
+    handleKeyPressed: function(e){        
         switch(String.fromCharCode(e.keyCode))
         {
-            case 'w': that.move(0,-moveSpeed); break;
-            case 'a': that.move(-moveSpeed,0);break;
-            case 's': that.move(0,moveSpeed);break;
-            case 'd': that.move(moveSpeed,0);break;
+            case 'W': that.keys.up = true;break;
+            case 'A': that.keys.left = true;break;
+            case 'S': that.keys.down = true;break;
+            case 'D': that.keys.right = true;break;
         }
-       }
+       
     },
-
+    handleKeyReleased: function(e){
+        switch(String.fromCharCode(e.keyCode))
+        {
+            case 'W': that.keys.up = false; break;
+            case 'A': that.keys.left = false;break;
+            case 'S': that.keys.down = false;break;
+            case 'D': that.keys.right = false;break;
+        }
     }
-    window.addEventListener("keypress",that.handleKey, false);
+    }
+    document.addEventListener("keydown",that.handleKeyPressed, false);
+    document.addEventListener("keyup",that.handleKeyReleased, false);
     return that;
 
 
@@ -168,7 +185,7 @@ function draw()
     //Fill the darkness out
     darknessCtx.globalCompositeOperation = 'source-over'; 
     darknessCtx.fillStyle = "black"; 
-    //darknessCtx.fillRect(0,0,darknessCanvas.width,darknessCanvas.height); 
+    darknessCtx.fillRect(0,0,darknessCanvas.width,darknessCanvas.height); 
     darknessCtx.globalCompositeOperation = 'destination-out'; 
     light.draw();
     
