@@ -41,7 +41,7 @@ gameCanvas.height = 480;//mapArray.length*tileSize;
 darknessCanvas.width = gameCanvas.width;
 darknessCanvas.height = gameCanvas.height;
 
-var unPassibleTiles = [3];
+var unPassibleTiles = [-1,3];
 
 
 var screenOffset = {x: 0, y: 0};
@@ -90,7 +90,11 @@ function Player() {
     this.keys = {left:false,right:false,up:false,down:false};
     this.flashlight = new Light(darknessCtx, 100, {x:0,y:0});
     this.flashlightActive = true;
-    
+    this.weapon = 3;
+    this.mousePos = {x:0,y:0};
+    this.mouseClicked = false;
+    this.rotation = 0;
+ 
     this.update = function() {
         if (this.keys.up == true)
             this.move(0,-this.moveSpeed); 
@@ -101,10 +105,17 @@ function Player() {
         if (this.keys.right == true) 
             this.move(this.moveSpeed,0);
         
-        this.flashlight.place(this.position.x+tileSize/2,this.position.y+tileSize/2);
+        this.flashlight.place(this.position.x,this.position.y);
+	this.rotation  = Math.atan2(this.mousePos.x - this.position.x, this.position.y - this.mousePos.y) - 3.14/2;
     };
     this.draw = function(){
-        gameCtx.drawImage(charactersImage,0,0,16,16,this.position.x + screenOffset.x,this.position.y+screenOffset.y,tileSize,tileSize);
+
+	gameCtx.save();
+	gameCtx.translate(this.position.x + screenOffset.x + tileSize/2,this.position.y+screenOffset.y+tileSize/2);
+	gameCtx.rotate(this.rotation);
+        gameCtx.drawImage(charactersImage,this.weapon*16,0,16,16,-tileSize/2,-tileSize/2,tileSize,tileSize);
+	gameCtx.restore();
+
         if(this.flashlightActive)
             this.flashlight.draw();
     };
@@ -185,7 +196,19 @@ function Player() {
             case 'D': that.keys.right = false;break;
         }
     };
+    //Listeners 
+    darknessCanvas.addEventListener('mousemove', function(evt) {
+        var mousePos = getMousePos(darknessCanvas, evt);
     
+        player.mousePos = mousePos;
+    
+    }, false);
+    darknessCanvas.addEventListener('mousedown',function(evt) {
+       this.mouseClicked = true;
+    }, false);
+    darknessCanvas.addEventListener('mouseup',function(evt) {
+      this.mouseClicked = false;
+    }, false);
     document.addEventListener("keydown",this.handleKeyPressed, false);
     document.addEventListener("keyup",this.handleKeyReleased, false);
 }
@@ -279,8 +302,4 @@ function getMousePos(canvas, evt) {
     };
 }
 
-//Listeners 
-darknessCanvas.addEventListener('mousemove', function(evt) {
-    var mousePos = getMousePos(darknessCanvas, evt);
-    
-}, false);
+
