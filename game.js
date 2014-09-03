@@ -106,7 +106,7 @@ function Player() {
             this.move(this.moveSpeed,0);
         
         this.flashlight.place(this.position.x,this.position.y);
-	this.rotation  = Math.atan2(this.mousePos.x - this.position.x, this.position.y - this.mousePos.y) - 3.14/2;
+	this.rotation  = Math.atan2(this.mousePos.x - screenOffset.x - this.position.x, this.position.y - this.mousePos.y + screenOffset.y) - 3.14/2;
     };
     this.draw = function(){
 
