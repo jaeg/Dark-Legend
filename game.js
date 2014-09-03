@@ -9,7 +9,7 @@ var darknessCtx = darknessCanvas.getContext("2d");
 var tilesImage = new Image();
 tilesImage.src = "img/tiles.png";
 var charactersImage = new Image();
-charactersImage.src = "img/characters.png";
+charactersImage.src = "img/player.png";
 
 //MAPS
 tileSize = 32;
@@ -213,6 +213,7 @@ function draw()
     {
         for(var j=0; j < mapArray[i].length; j++)
         {
+	    /*
             var offSetX, offSetY;
             if (mapArray[i][j] == 0) {
                 offSetX = 0;
@@ -227,7 +228,20 @@ function draw()
                 offSetY = 0;
             }
 
-            gameCtx.drawImage(tilesImage,16*offSetX,16*offSetY,16,16,j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);
+            gameCtx.drawImage(tilesImage,16*offSetX,16*offSetY,16,16,j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);*/
+
+
+            if (mapArray[i][j] == 0) {
+		gameCtx.fillStyle = "#1DB835";
+
+            }
+            if (mapArray[i][j] == 1) {
+		gameCtx.fillStyle = "#37B84B";
+            }
+            if (mapArray[i][j] == 3) {
+                gameCtx.fillStyle = "#79807A";
+            }
+            gameCtx.fillRect(j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);
         }
     }
 
