@@ -48,25 +48,51 @@ var screenOffset = {x: 0, y: 0};
 
 //CLASSES
 //Standard Circular Light
-function Light(ctx, radius, position)
+function Light(ctx, radius, position,initalBrightness)
 {
      this.position = position;
      this.radius = radius;
+     this.brightness = initalBrightness;
+     this.targetBrightness = initalBrightness;
+     this.fadeSpeed = 0;
      this.ctx = ctx;
+
      this.draw =  function(){
+        if (this.brightness  < this.targetBrightness)
+	    this.brightness  += this.fadeSpeed;
+        else if (this.brightness > this.targetBrightness)
+            this.brightness -= this.fadeSpeed;
+	else
+	    this.brightness = this.targetBrightness;
         var gradient = this.ctx.createRadialGradient(this.position.x + screenOffset.x, this.position.y + screenOffset.y, 
                                                      this.radius, this.position.x + screenOffset.x, this.position.y + screenOffset.y, 0);  
         gradient.addColorStop(1, "#000");  
          //gradient.addColorStop(0, "white");  
         gradient.addColorStop(0, "transparent");  
         this.ctx.fillStyle = gradient;
+        this.ctx.globalAlpha = this.brightness;
         this.ctx.fillRect(0, 0, 640, 480);  
+	this.ctx.globalAlpha = 1;
      };
     this.place = function(x, y)
     {
         this.position.x = x;
         this.position.y = y;
     }
+
+    this.adjustBrightness = function(newBrightness, speed) 
+    {
+      this.targetBrightness = newBrightness;
+      this.fadeSpeed = speed;
+
+    }
+
+    this.isAdjusting = function()
+    {
+      return (this.brightness == this.targetBrightness);
+    }
+
+    
 
 }
 
@@ -88,7 +114,8 @@ function Player() {
     this.frame = 0;
     this.moveSpeed = Math.ceil(tileSize/5);
     this.keys = {left:false,right:false,up:false,down:false};
-    this.flashlight = new Light(darknessCtx, 100, {x:0,y:0});
+    this.flashlight = new Light(darknessCtx, 100, {x:0,y:0},.5);
+    this.flashlight.adjustBrightness(1,.01);
     this.flashlightActive = true;
     this.weapon = 3;
     this.mousePos = {x:0,y:0};
@@ -105,7 +132,7 @@ function Player() {
         if (this.keys.right == true) 
             this.move(this.moveSpeed,0);
         
-        this.flashlight.place(this.position.x,this.position.y);
+        this.flashlight.place(this.position.x+tileSize/2,this.position.y+tileSize/2);
 	this.rotation  = Math.atan2(this.mousePos.x - screenOffset.x - this.position.x, this.position.y - this.mousePos.y + screenOffset.y) - 3.14/2;
     };
     this.draw = function(){
