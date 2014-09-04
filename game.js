@@ -241,6 +241,20 @@ function Player() {
 }
 
 
+function Enemy(type)
+{
+    this.type = type;
+    this.position = {x:0, y:0};
+    this.health = 10;
+    this.update = function() {
+        
+    }
+    this.draw = function() {
+        
+    }
+    
+}
+
 
 //Initialization
 var player = new Player();
