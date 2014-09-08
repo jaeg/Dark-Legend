@@ -117,7 +117,8 @@ function Player() {
     this.flashlight = new Light(darknessCtx, 100, {x:0,y:0},.5);
     this.flashlight.adjustBrightness(1,.01);
     this.flashlightActive = true;
-    this.weapon = 3;
+    this.flashlightBattery = 100;
+    this.eyeAdjustment = 0;
     this.mousePos = {x:0,y:0};
     this.mouseClicked = false;
     this.rotation = 0;
@@ -131,16 +132,24 @@ function Player() {
             this.move(0,this.moveSpeed);
         if (this.keys.right == true) 
             this.move(this.moveSpeed,0);
-        
+        if (this.flashlightActive)
+        {
+            this.flashlightBattery -=.1;
+            this.eyeAdjustment = 0;
+        }
+        else if (this.eyeAdjustment < .2)
+            this.eyeAdjustment += .005;
+        if (this.flashlightBattery <= 0)
+            this.flashlightActive = false;
         this.flashlight.place(this.position.x+tileSize/2,this.position.y+tileSize/2);
-	this.rotation  = Math.atan2(this.mousePos.x - screenOffset.x - this.position.x, this.position.y - this.mousePos.y + screenOffset.y) - 3.14/2;
+        this.rotation  = Math.atan2(this.mousePos.x - screenOffset.x - this.position.x, this.position.y - this.mousePos.y + screenOffset.y) - 3.14/2;
     };
     this.draw = function(){
 
 	gameCtx.save();
 	gameCtx.translate(this.position.x + screenOffset.x + tileSize/2,this.position.y+screenOffset.y+tileSize/2);
 	gameCtx.rotate(this.rotation);
-        gameCtx.drawImage(charactersImage,this.weapon*16,0,16,16,-tileSize/2,-tileSize/2,tileSize,tileSize);
+        gameCtx.drawImage(charactersImage,0,0,16,16,-tileSize/2,-tileSize/2,tileSize,tileSize);
 	gameCtx.restore();
 
         if(this.flashlightActive)
@@ -210,7 +219,8 @@ function Player() {
             case 'A': that.keys.left = true;break;
             case 'S': that.keys.down = true;break;
             case 'D': that.keys.right = true;break;
-            case 'F': that.flashlightActive = !that.flashlightActive;break;
+            case 'F': if (that.flashlightBattery > 0)
+                    that.flashlightActive = !that.flashlightActive;break;
         }
        
     };
@@ -258,58 +268,92 @@ function Enemy(type)
 
 //Initialization
 var player = new Player();
+var gameState = "death";
+document.addEventListener("keydown",function(e) { if (e.keyCode == 13 && gameState != "play") {start();}}, false);
+
+function start()
+{
+    player = new Player();
+    gameState = "play";
+    
+}
 
 
 //Game functions
 function update()
 {
-    player.update();
+    if (gameState == "play")
+    {
+        player.update();
+    }
 }
 function draw()
 {
-    //Fill the darkness out
-    darknessCtx.globalCompositeOperation = 'source-over'; 
-    darknessCtx.fillStyle = "black"; 
-    darknessCtx.fillRect(0,0,darknessCanvas.width,darknessCanvas.height); 
-    darknessCtx.globalCompositeOperation = 'destination-out'; 
-    
-    for (var i=0; i < mapArray.length; i++)
+    if (gameState == "menu")
     {
-        for(var j=0; j < mapArray[i].length; j++)
-        {
-	    /*
-            var offSetX, offSetY;
-            if (mapArray[i][j] == 0) {
-                offSetX = 0;
-                offSetY = 5;
-            }
-            if (mapArray[i][j] == 1) {
-                offSetX = 0;
-                offSetY = 0;
-            }
-            if (mapArray[i][j] == 3) {
-                offSetX = 3;
-                offSetY = 0;
-            }
-
-            gameCtx.drawImage(tilesImage,16*offSetX,16*offSetY,16,16,j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);*/
-
-
-            if (mapArray[i][j] == 0) {
-		gameCtx.fillStyle = "#1DB835";
-
-            }
-            if (mapArray[i][j] == 1) {
-		gameCtx.fillStyle = "#37B84B";
-            }
-            if (mapArray[i][j] == 3) {
-                gameCtx.fillStyle = "#79807A";
-            }
-            gameCtx.fillRect(j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);
-        }
+        darknessCanvas.width = darknessCanvas.width;
+        darknessCtx.fillStyle = "black";
+        darknessCtx.fillRect(0,0,darknessCanvas.width, darknessCanvas.height);
+        darknessCtx.fillStyle = "white";
+        darknessCtx.font="20px Courier New";
+        darknessCtx.fillText("Hit Enter To Start",240,240);
     }
+    if (gameState == "death")
+    {
+        darknessCanvas.width = darknessCanvas.width;
+        darknessCtx.fillStyle = "black";
+        darknessCtx.fillRect(0,0,darknessCanvas.width, darknessCanvas.height);
+        darknessCtx.fillStyle = "white";
+        darknessCtx.font="20px Courier New";
+        darknessCtx.fillText("Game Over... Hit Enter To Start",150,240);
+    }
+    if (gameState == "play")
+    {
+        //Fill the darkness out
+        darknessCanvas.width = darknessCanvas.width;
+        darknessCtx.globalCompositeOperation = 'source-over'; 
+        darknessCtx.fillStyle = "rgba(0, 0, 0, " + (1 - player.eyeAdjustment) + ")"; 
+        darknessCtx.fillRect(0,0,darknessCanvas.width,darknessCanvas.height); 
+        darknessCtx.globalCompositeOperation = 'destination-out'; 
 
-    player.draw();
+        for (var i=0; i < mapArray.length; i++)
+        {
+            for(var j=0; j < mapArray[i].length; j++)
+            {
+            /*
+                var offSetX, offSetY;
+                if (mapArray[i][j] == 0) {
+                    offSetX = 0;
+                    offSetY = 5;
+                }
+                if (mapArray[i][j] == 1) {
+                    offSetX = 0;
+                    offSetY = 0;
+                }
+                if (mapArray[i][j] == 3) {
+                    offSetX = 3;
+                    offSetY = 0;
+                }
+
+                gameCtx.drawImage(tilesImage,16*offSetX,16*offSetY,16,16,j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);*/
+
+
+                if (mapArray[i][j] == 0) {
+            gameCtx.fillStyle = "#1DB835";
+
+                }
+                if (mapArray[i][j] == 1) {
+            gameCtx.fillStyle = "#37B84B";
+                }
+                if (mapArray[i][j] == 3) {
+                    gameCtx.fillStyle = "#79807A";
+                }
+                gameCtx.fillRect(j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);
+            }
+        }
+
+        player.draw();
+    }
 }
 
 //Main Loop
