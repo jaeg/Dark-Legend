@@ -10,6 +10,8 @@ var tilesImage = new Image();
 tilesImage.src = "img/tiles.png";
 var charactersImage = new Image();
 charactersImage.src = "img/player.png";
+var monstersImage = new Image();
+monstersImage.src = "img/monsters.png";
 
 //MAPS
 tileSize = 32;
@@ -116,11 +118,10 @@ function Player() {
     this.keys = {left:false,right:false,up:false,down:false};
     this.flashlight = new Light(darknessCtx, 100, {x:0,y:0},.5);
     this.flashlight.adjustBrightness(1,.01);
-    this.flashlightActive = true;
+    this.flashlightActive = false;
     this.flashlightBattery = 100;
     this.eyeAdjustment = 0;
     this.mousePos = {x:0,y:0};
-    this.mouseClicked = false;
     this.rotation = 0;
  
     this.update = function() {
@@ -219,8 +220,6 @@ function Player() {
             case 'A': that.keys.left = true;break;
             case 'S': that.keys.down = true;break;
             case 'D': that.keys.right = true;break;
-            case 'F': if (that.flashlightBattery > 0)
-                    that.flashlightActive = !that.flashlightActive;break;
         }
        
     };
@@ -231,20 +230,35 @@ function Player() {
             case 'A': that.keys.left = false;break;
             case 'S': that.keys.down = false;break;
             case 'D': that.keys.right = false;break;
+            case 'F': if (that.flashlightBattery > 0)
+                that.flashlightActive = !that.flashlightActive;
+                console.log("f");
+                break;
         }
     };
+    
+    this.reset = function() {
+        that = this;
+        this.isMoving = false;
+        this.position = {x:tileSize, y:tileSize};
+        this.frame = 0;
+        this.moveSpeed = Math.ceil(tileSize/5);
+        this.keys = {left:false,right:false,up:false,down:false};
+        this.flashlight = new Light(darknessCtx, 100, {x:0,y:0},.5);
+        this.flashlight.adjustBrightness(1,.01);
+        this.flashlightActive = false;
+        this.flashlightBattery = 100;
+        this.eyeAdjustment = 0;
+        this.mousePos = {x:0,y:0};
+        this.rotation = 0;
+        
+    }
     //Listeners 
     darknessCanvas.addEventListener('mousemove', function(evt) {
         var mousePos = getMousePos(darknessCanvas, evt);
     
         player.mousePos = mousePos;
     
-    }, false);
-    darknessCanvas.addEventListener('mousedown',function(evt) {
-       this.mouseClicked = true;
-    }, false);
-    darknessCanvas.addEventListener('mouseup',function(evt) {
-      this.mouseClicked = false;
     }, false);
     document.addEventListener("keydown",this.handleKeyPressed, false);
     document.addEventListener("keyup",this.handleKeyReleased, false);
@@ -257,10 +271,20 @@ function Enemy(type)
     this.position = {x:0, y:0};
     this.health = 10;
     this.update = function() {
+        if (this.position.x + screenOffset.x < gameCanvas.width  && this.position.y + screenOffset.y < gameCanvas.height)
+        {
+        var imageData = darknessCtx.getImageData(this.position.x + screenOffset.x, this.position.y + screenOffset.y,tileSize, tileSize);
         
+        for (var i = 0; i < imageData.data.length; i += 4)
+        {
+            
+            if (imageData.data[i+3] < 200)
+                enemies[enemies.indexOf(this)] = null;
+        }
+        }
     }
     this.draw = function() {
-        
+        gameCtx.drawImage(monstersImage,0,0,16,16,this.position.x+screenOffset.x,this.position.y+screenOffset.y,tileSize,tileSize);
     }
     
 }
@@ -268,14 +292,23 @@ function Enemy(type)
 
 //Initialization
 var player = new Player();
-var gameState = "death";
+var enemies = new Array();
+var gameState = "menu";
 document.addEventListener("keydown",function(e) { if (e.keyCode == 13 && gameState != "play") {start();}}, false);
 
 function start()
 {
-    player = new Player();
+    player.reset();
     gameState = "play";
     
+    for(var i=0; i < 10; i++)
+    {
+        var enemy = new Enemy();
+        enemy.position.x = Math.random() * mapArray[0].length * tileSize;
+        console.log(enemy.position.x);
+        enemy.position.y = Math.random() * mapArray.length * tileSize;
+        enemies.push(enemy); 
+    }
 }
 
 
@@ -285,6 +318,9 @@ function update()
     if (gameState == "play")
     {
         player.update();
+        for (var i=0; i < enemies.length; i++)
+            if (enemies[i] != null)
+                enemies[i].update();
     }
 }
 function draw()
@@ -353,6 +389,9 @@ function draw()
         }
 
         player.draw();
+        for (i=0; i < enemies.length; i++)
+            if (enemies[i] != null)
+                enemies[i].draw();
     }
 }
 
