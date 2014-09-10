@@ -61,20 +61,23 @@ function Light(ctx, radius, position,initalBrightness)
 
      this.draw =  function(){
         if (this.brightness  < this.targetBrightness)
-	    this.brightness  += this.fadeSpeed;
+            this.brightness  += this.fadeSpeed;
         else if (this.brightness > this.targetBrightness)
             this.brightness -= this.fadeSpeed;
-	else
-	    this.brightness = this.targetBrightness;
+	   else
+           this.brightness = this.targetBrightness;
+         
         var gradient = this.ctx.createRadialGradient(this.position.x + screenOffset.x, this.position.y + screenOffset.y, 
                                                      this.radius, this.position.x + screenOffset.x, this.position.y + screenOffset.y, 0);  
+        darknessCtx.globalCompositeOperation = 'destination-out'; 
         gradient.addColorStop(1, "#000");  
          //gradient.addColorStop(0, "white");  
         gradient.addColorStop(0, "transparent");  
         this.ctx.fillStyle = gradient;
         this.ctx.globalAlpha = this.brightness;
         this.ctx.fillRect(0, 0, 640, 480);  
-	this.ctx.globalAlpha = 1;
+	    this.ctx.globalAlpha = 1;
+        darknessCtx.globalCompositeOperation = 'source-over'; 
      };
     this.place = function(x, y)
     {
@@ -146,12 +149,11 @@ function Player() {
         this.rotation  = Math.atan2(this.mousePos.x - screenOffset.x - this.position.x, this.position.y - this.mousePos.y + screenOffset.y) - 3.14/2;
     };
     this.draw = function(){
-
-	gameCtx.save();
-	gameCtx.translate(this.position.x + screenOffset.x + tileSize/2,this.position.y+screenOffset.y+tileSize/2);
-	gameCtx.rotate(this.rotation);
-        gameCtx.drawImage(charactersImage,0,0,16,16,-tileSize/2,-tileSize/2,tileSize,tileSize);
-	gameCtx.restore();
+        gameCtx.save();
+        gameCtx.translate(this.position.x + screenOffset.x + tileSize/2,this.position.y+screenOffset.y+tileSize/2);
+        gameCtx.rotate(this.rotation);
+            gameCtx.drawImage(charactersImage,0,0,16,16,-tileSize/2,-tileSize/2,tileSize,tileSize);
+        gameCtx.restore();
 
         if(this.flashlightActive)
             this.flashlight.draw();
@@ -269,28 +271,39 @@ function Enemy(type)
 {
     this.type = type;
     this.position = {x:0, y:0};
-    this.health = 10;
+    this.health = 50;
     this.update = function() {
         if (this.position.x + screenOffset.x < gameCanvas.width  && this.position.y + screenOffset.y < gameCanvas.height)
         {
-        var imageData = darknessCtx.getImageData(this.position.x + screenOffset.x, this.position.y + screenOffset.y,tileSize, tileSize);
-        
-        for (var i = 0; i < imageData.data.length; i += 4)
-        {
-            
-            if (imageData.data[i+3] < 200)
-                enemies[enemies.indexOf(this)] = null;
+            var imageData = darknessCtx.getImageData(this.position.x + screenOffset.x, this.position.y + screenOffset.y,tileSize, tileSize);
+
+            for (var i = 0; i < imageData.data.length; i += 4)
+            {
+
+                if (imageData.data[i+3] < 200)
+                    this.health -= .001
+            }
         }
+        
+        if (this.health < 0)
+        {
+            this.position.x = Math.random() * mapArray[0].length * tileSize;
+            this.position.y = Math.random() * mapArray.length * tileSize;
+            this.health = 50;
+            score += 10;
         }
     }
     this.draw = function() {
+        gameCtx.globalAlpha = this.health/50;
         gameCtx.drawImage(monstersImage,0,0,16,16,this.position.x+screenOffset.x,this.position.y+screenOffset.y,tileSize,tileSize);
+        gameCtx.globalAlpha = 1;
     }
     
 }
 
 
 //Initialization
+var score = 0;
 var player = new Player();
 var enemies = new Array();
 var gameState = "menu";
@@ -299,13 +312,13 @@ document.addEventListener("keydown",function(e) { if (e.keyCode == 13 && gameSta
 function start()
 {
     player.reset();
+    score = 0;
     gameState = "play";
     
     for(var i=0; i < 10; i++)
     {
         var enemy = new Enemy();
         enemy.position.x = Math.random() * mapArray[0].length * tileSize;
-        console.log(enemy.position.x);
         enemy.position.y = Math.random() * mapArray.length * tileSize;
         enemies.push(enemy); 
     }
@@ -341,17 +354,21 @@ function draw()
         darknessCtx.fillRect(0,0,darknessCanvas.width, darknessCanvas.height);
         darknessCtx.fillStyle = "white";
         darknessCtx.font="20px Courier New";
+        darknessCtx.fillText("Score: "+score,150,280);
         darknessCtx.fillText("Game Over... Hit Enter To Start",150,240);
     }
     if (gameState == "play")
     {
         //Fill the darkness out
         darknessCanvas.width = darknessCanvas.width;
-        darknessCtx.globalCompositeOperation = 'source-over'; 
+        //darknessCtx.globalCompositeOperation = 'source-over'; 
         darknessCtx.fillStyle = "rgba(0, 0, 0, " + (1 - player.eyeAdjustment) + ")"; 
         darknessCtx.fillRect(0,0,darknessCanvas.width,darknessCanvas.height); 
-        darknessCtx.globalCompositeOperation = 'destination-out'; 
-
+        //darknessCtx.globalCompositeOperation = 'destination-out'; 
+        darknessCtx.fillStyle = "white";
+        darknessCtx.font="20px Courier New";
+        darknessCtx.fillText("Score: " + score + "  Flashlight Battery: " + Math.floor(player.flashlightBattery),10,20);
+        
         for (var i=0; i < mapArray.length; i++)
         {
             for(var j=0; j < mapArray[i].length; j++)
