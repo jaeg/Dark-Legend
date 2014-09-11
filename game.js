@@ -12,6 +12,8 @@ var charactersImage = new Image();
 charactersImage.src = "img/player.png";
 var monstersImage = new Image();
 monstersImage.src = "img/monsters.png";
+var flashLightImage = new Image();
+flashLightImage.src = "img/flashlight.png";
 
 //MAPS
 tileSize = 32;
@@ -61,6 +63,8 @@ function Light(ctx, radius, position, initalBrightness)
     this.targetBrightness = initalBrightness;
     this.fadeSpeed = 0;
     this.ctx = ctx;
+    this.rotation = 0;
+    this.isFlashLight = true;
 
     this.draw = function()
     {
@@ -71,17 +75,30 @@ function Light(ctx, radius, position, initalBrightness)
         else
             this.brightness = this.targetBrightness;
 
-        var gradient = this.ctx.createRadialGradient(this.position.x + screenOffset.x, this.position.y + screenOffset.y,
-            this.radius, this.position.x + screenOffset.x, this.position.y + screenOffset.y, 0);
-        darknessCtx.globalCompositeOperation = 'destination-out';
-        gradient.addColorStop(1, "#000");
-        //gradient.addColorStop(0, "white");  
-        gradient.addColorStop(0, "transparent");
-        this.ctx.fillStyle = gradient;
-        this.ctx.globalAlpha = this.brightness;
-        this.ctx.fillRect(0, 0, 640, 480);
-        this.ctx.globalAlpha = 1;
-        darknessCtx.globalCompositeOperation = 'source-over';
+        if (this.isFlashLight)
+        {
+            darknessCtx.save();
+            darknessCtx.globalCompositeOperation = 'destination-out';
+            darknessCtx.translate(this.position.x + screenOffset.x , this.position.y + screenOffset.y );
+            darknessCtx.rotate(this.rotation);
+            darknessCtx.drawImage(flashLightImage, 0, 0, 128, 128, 0, -tileSize*2 , tileSize*4, tileSize*4);
+            darknessCtx.globalCompositeOperation = 'source-over';
+            darknessCtx.restore();
+        }
+        else
+        {
+            var gradient = this.ctx.createRadialGradient(this.position.x + screenOffset.x, this.position.y + screenOffset.y,
+                this.radius, this.position.x + screenOffset.x, this.position.y + screenOffset.y, 0);
+            darknessCtx.globalCompositeOperation = 'destination-out';
+            gradient.addColorStop(1, "#000");
+            //gradient.addColorStop(0, "white");  
+            gradient.addColorStop(0, "transparent");
+            this.ctx.fillStyle = gradient;
+            this.ctx.globalAlpha = this.brightness;
+            this.ctx.fillRect(0, 0, 640, 480);
+            this.ctx.globalAlpha = 1;
+            darknessCtx.globalCompositeOperation = 'source-over';
+        }
     };
     this.place = function(x, y)
     {
@@ -140,6 +157,7 @@ function Player()
         x: 0,
         y: 0
     }, .5);
+    
     this.flashlight.adjustBrightness(1, .01);
     this.flashlightActive = false;
     this.flashlightBattery = 100;
@@ -170,6 +188,7 @@ function Player()
         if (this.flashlightBattery <= 0)
             this.flashlightActive = false;
         this.flashlight.place(this.position.x + tileSize / 2, this.position.y + tileSize / 2);
+        this.flashlight.rotation = this.rotation;
         this.rotation = Math.atan2(this.mousePos.x - screenOffset.x - this.position.x, this.position.y - this.mousePos.y + screenOffset.y) - 3.14 / 2;
     };
     this.draw = function()
@@ -337,6 +356,8 @@ function Enemy(type)
         y: 0
     };
     this.health = 50;
+    this.burstTimer = Math.random() * 10;
+    this.moveTimer = 0;
     this.update = function()
     {
         if (this.position.x + screenOffset.x < gameCanvas.width && this.position.y + screenOffset.y < gameCanvas.height)
@@ -346,7 +367,7 @@ function Enemy(type)
             for (var i = 0; i < imageData.data.length; i += 4)
             {
 
-                if (imageData.data[i + 3] < 200)
+                if (imageData.data[i + 3] < 200 && imageData.data[i + 3] > 0)
                     this.health -= .001
             }
         }
@@ -358,6 +379,34 @@ function Enemy(type)
             this.health = 50;
             score += 10;
         }
+        
+        
+        this.burstTimer -= .1;
+        
+        if (this.burstTimer < 0)
+        {
+            this.burstTimer = Math.random() * 10;
+            
+            this.moveTimer = 10;
+        }
+        
+        if (this.moveTimer > 0)
+        {
+            if (this.position.x < player.position.x)
+                this.position.x += 2;
+            if (this.position.x > player.position.x)
+                this.position.x -= 2;
+            if (this.position.y < player.position.y)
+                this.position.y += 2;
+            if (this.position.y > player.position.y)
+                this.position.y -= 2;
+            
+            this.moveTimer -= 1;
+        }
+        
+        
+        
+        
     }
     this.draw = function()
     {
