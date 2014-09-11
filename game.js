@@ -77,13 +77,15 @@ function Light(ctx, radius, position, initalBrightness)
 
         if (this.isFlashLight)
         {
-            darknessCtx.save();
-            darknessCtx.globalCompositeOperation = 'destination-out';
-            darknessCtx.translate(this.position.x + screenOffset.x , this.position.y + screenOffset.y );
-            darknessCtx.rotate(this.rotation);
-            darknessCtx.drawImage(flashLightImage, 0, 0, 128, 128, 0, -tileSize*2 , tileSize*4, tileSize*4);
-            darknessCtx.globalCompositeOperation = 'source-over';
-            darknessCtx.restore();
+            this.ctx.save();
+            this.ctx.globalCompositeOperation = 'destination-out';
+            this.ctx.globalAlpha = this.brightness;
+            this.ctx.translate(this.position.x + screenOffset.x , this.position.y + screenOffset.y );
+            this.ctx.rotate(this.rotation);
+            this.ctx.drawImage(flashLightImage, 0, 0, 128, 128, 0, -tileSize*2 , tileSize*4, tileSize*4);
+            this.ctx.globalCompositeOperation = 'source-over';
+            this.ctx.globalAlpha = 1;
+            this.ctx.restore();
         }
         else
         {
@@ -298,7 +300,6 @@ function Player()
             case 'F':
                 if (that.flashlightBattery > 0)
                     that.flashlightActive = !that.flashlightActive;
-                console.log("f");
                 break;
         }
     };
