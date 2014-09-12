@@ -393,6 +393,10 @@ function Enemy(type)
         
         if (this.moveTimer > 0)
         {
+            var oldPosition = {x:0, y:0}
+            oldPosition.x = this.position.x;
+            oldPosition.y = this.position.y;
+
             if (this.position.x < player.position.x)
                 this.position.x += 2;
             if (this.position.x > player.position.x)
@@ -402,6 +406,7 @@ function Enemy(type)
             if (this.position.y > player.position.y)
                 this.position.y -= 2;
             
+            this.rotation = Math.atan2(this.position.x - oldPosition.x, oldPosition.y - this.position.y) - 3.14 / 2;
             this.moveTimer -= 1;
         }
         
@@ -412,7 +417,11 @@ function Enemy(type)
     this.draw = function()
     {
         gameCtx.globalAlpha = this.health / 50;
-        gameCtx.drawImage(monstersImage, 0, 0, 16, 16, this.position.x + screenOffset.x, this.position.y + screenOffset.y, tileSize, tileSize);
+        gameCtx.save();
+        gameCtx.translate(this.position.x + screenOffset.x + tileSize / 2, this.position.y + screenOffset.y + tileSize / 2);
+        gameCtx.rotate(this.rotation);
+        gameCtx.drawImage(monstersImage, 0, 0, 16, 16, -tileSize / 2, -tileSize / 2, tileSize, tileSize);
+        gameCtx.restore();
         gameCtx.globalAlpha = 1;
     }
 
