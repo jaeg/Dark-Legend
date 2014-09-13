@@ -169,6 +169,7 @@ function Player()
         y: 0
     };
     this.rotation = 0;
+    this.torches = new Array();
 
     this.update = function()
     {
@@ -180,6 +181,7 @@ function Player()
             this.move(0, this.moveSpeed);
         if (this.keys.right == true)
             this.move(this.moveSpeed, 0);
+        
         if (this.flashlightActive)
         {
             this.flashlightBattery -= .05;
@@ -187,6 +189,8 @@ function Player()
         }
         else if (this.eyeAdjustment < .2)
             this.eyeAdjustment += .005;
+        
+
         if (this.flashlightBattery <= 0)
         {
             this.flashlightActive = false;
@@ -210,6 +214,13 @@ function Player()
 
         if (this.flashlightActive)
             this.flashlight.draw();
+        
+        if (this.torches.length != 0)
+        {
+            for (var i=0;i<this.torches.length;i++)
+                this.torches[i].draw();
+        }
+
     };
     this.move = function(xSpeed, ySpeed)
     {
@@ -308,6 +319,20 @@ function Player()
                 if (that.flashlightBattery > 0)
                     that.flashlightActive = !that.flashlightActive;
                 break;
+            case 'T':
+                if (that.torches.length < 10)
+                {
+                    var position = {x:0, y:0}; 
+                    position.x = that.position.x;
+                    position.y = that.position.y;
+                    var torch = new Light(darknessCtx,100,position,1);
+                    torch.isFlashLight = false;
+                    torch.adjustBrightness(0.01,.01);
+                    that.torches.push(torch);
+                }break;
+                    
+                    
+                
         }
     };
 
@@ -342,6 +367,9 @@ function Player()
             };
             this.rotation = 0;
 
+            this.torches.length = 0;
+            screenOffset.x = 0;
+            screenOffset.y = 0;
         }
         //Listeners 
     darknessCanvas.addEventListener('mousemove', function(evt)
@@ -417,7 +445,13 @@ function Enemy(type)
             this.moveTimer -= 1;
         }
         
-        
+        if (Math.abs(this.position.x - player.position.x) *2 < (tileSize*2) && Math.abs(this.position.y - player.position.y) *2 < (tileSize*2))
+        {
+            this.position.x = Math.random() * mapArray[0].length * tileSize;
+            this.position.y = Math.random() * mapArray.length * tileSize;
+            this.health = 50;
+            score -= 10;
+        }
         
         
     }
@@ -453,7 +487,7 @@ function start()
     player.reset();
     score = 0;
     gameState = "play";
-
+    enemy.length = 0;
     for (var i = 0; i < 10; i++)
     {
         var enemy = new Enemy();
@@ -513,38 +547,25 @@ function draw()
         {
             for (var j = 0; j < mapArray[i].length; j++)
             {
-                /*
+                
                     var offSetX, offSetY;
                     if (mapArray[i][j] == 0) {
                         offSetX = 0;
-                        offSetY = 5;
+                        offSetY = 0;
                     }
                     if (mapArray[i][j] == 1) {
-                        offSetX = 0;
+                        offSetX = 1;
                         offSetY = 0;
                     }
                     if (mapArray[i][j] == 3) {
-                        offSetX = 3;
+                        offSetX = 2;
                         offSetY = 0;
                     }
 
-                    gameCtx.drawImage(tilesImage,16*offSetX,16*offSetY,16,16,j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);*/
+                    gameCtx.drawImage(tilesImage,16*offSetX,16*offSetY,16,16,j*tileSize+screenOffset.x,i*tileSize+screenOffset.y,tileSize,tileSize);
 
 
-                if (mapArray[i][j] == 0)
-                {
-                    gameCtx.fillStyle = "#1DB835";
 
-                }
-                if (mapArray[i][j] == 1)
-                {
-                    gameCtx.fillStyle = "#37B84B";
-                }
-                if (mapArray[i][j] == 3)
-                {
-                    gameCtx.fillStyle = "#79807A";
-                }
-                gameCtx.fillRect(j * tileSize + screenOffset.x, i * tileSize + screenOffset.y, tileSize, tileSize);
             }
         }
 
