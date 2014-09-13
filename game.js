@@ -182,24 +182,31 @@ function Player()
             this.move(this.moveSpeed, 0);
         if (this.flashlightActive)
         {
-            this.flashlightBattery -= .1;
+            this.flashlightBattery -= .05;
             this.eyeAdjustment = 0;
         }
         else if (this.eyeAdjustment < .2)
             this.eyeAdjustment += .005;
         if (this.flashlightBattery <= 0)
+        {
             this.flashlightActive = false;
+            gameState = "death"
+        }
         this.flashlight.place(this.position.x + tileSize / 2, this.position.y + tileSize / 2);
         this.flashlight.rotation = this.rotation;
         this.rotation = Math.atan2(this.mousePos.x - screenOffset.x - this.position.x, this.position.y - this.mousePos.y + screenOffset.y) - 3.14 / 2;
     };
     this.draw = function()
     {
-        gameCtx.save();
-        gameCtx.translate(this.position.x + screenOffset.x + tileSize / 2, this.position.y + screenOffset.y + tileSize / 2);
-        gameCtx.rotate(this.rotation);
-        gameCtx.drawImage(charactersImage, 0, 0, 16, 16, -tileSize / 2, -tileSize / 2, tileSize, tileSize);
-        gameCtx.restore();
+        var ctx = gameCtx;
+        if (this.flashlightActive)
+            ctx = darknessCtx;
+            
+        ctx.save();
+        ctx.translate(this.position.x + screenOffset.x + tileSize / 2, this.position.y + screenOffset.y + tileSize / 2);
+        ctx.rotate(this.rotation);
+        ctx.drawImage(charactersImage, 0, 0, 16, 16, -tileSize / 2, -tileSize / 2, tileSize, tileSize);
+        ctx.restore();
 
         if (this.flashlightActive)
             this.flashlight.draw();
