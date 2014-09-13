@@ -327,7 +327,7 @@ function Player()
                     position.y = that.position.y;
                     var torch = new Light(darknessCtx,100,position,1);
                     torch.isFlashLight = false;
-                    torch.adjustBrightness(0.01,.01);
+                    torch.adjustBrightness(0.01,.005);
                     that.torches.push(torch);
                 }break;
                     
@@ -487,7 +487,7 @@ function start()
     player.reset();
     score = 0;
     gameState = "play";
-    enemy.length = 0;
+    enemies.length = 0;
     for (var i = 0; i < 10; i++)
     {
         var enemy = new Enemy();
@@ -541,7 +541,7 @@ function draw()
         //darknessCtx.globalCompositeOperation = 'destination-out'; 
         darknessCtx.fillStyle = "white";
         darknessCtx.font = "20px Courier New";
-        darknessCtx.fillText("Score: " + score + "  Flashlight Battery: " + Math.floor(player.flashlightBattery), 10, 20);
+        darknessCtx.fillText("Score: " + score + "  Flashlight Battery: " + Math.floor(player.flashlightBattery) + " Torches Left: " + (10-player.torches.length), 10, 20);
 
         for (var i = 0; i < mapArray.length; i++)
         {
